@@ -1,0 +1,15 @@
+<div class="messages">
+  <h3>Mensajes</h3>
+  <!-- Botón para mostrar/ocultar los mensajes -->
+  <button (click)="toggleMensajes()">Ver mensajes</button>
+
+  <!-- Mostrar los mensajes solo si showMensajes es verdadero -->
+  <div *ngIf="showMensajes">
+    <ul>
+      <li *ngFor="let msg of mensaje">
+        <h4>{{ msg.name }}</h4>
+        <p>{{ msg.content }}</p>
+      </li>
+    </ul>
+  </div>
+</div>
