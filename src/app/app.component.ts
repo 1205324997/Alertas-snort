@@ -1,5 +1,5 @@
 import { Component, OnInit  } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router,RouterModule } from '@angular/router';
 import { RouterOutlet } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { RegisterComponent } from '../auth/register/register.component';
@@ -8,6 +8,7 @@ import { HomeComponent } from '../home/home.component';
 import { StartComponent } from '../start/start.component';
 import { AlertService } from './alert.service';
 import { NgChartsModule } from 'ng2-charts';
+import { HttpClientModule } from '@angular/common/http';
 
 
 @Component({
@@ -23,6 +24,8 @@ import { NgChartsModule } from 'ng2-charts';
     LoginComponent,
     HomeComponent,
     NgChartsModule,
+    HttpClientModule,
+    RouterModule
   ],
 })
 export class AppComponent implements OnInit {
