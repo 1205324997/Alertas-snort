@@ -6,6 +6,9 @@
 /out-tsc
 /bazel-out
 
+snort.exe
+
+
 # Node
 /node_modules
 npm-debug.log
