@@ -1,0 +1,34 @@
+<div class="titulo">
+  <h3> Estadísticas de Alertas</h3>
+</div>
+
+<p class="descripcion-alertas">
+  Estas estadísticas muestran los porcentajes diarios de alertas según su prioridad, proporcionando una visión clara del estado de seguridad a lo largo del tiempo.
+</p>
+
+<div class="estadisticas-container">
+  <div class="grafico-y-leyenda" id="contenedorPDF">
+    <canvas id="myChart"></canvas>
+
+    <div class="contenedor-leyenda">
+      <div class="leyenda">
+        <div class="leyenda-item">
+          <span class="color-box alta"></span>
+          <span>Alta</span>
+        </div>
+        <div class="leyenda-item">
+          <span class="color-box media"></span>
+          <span>Media</span>
+        </div>
+        <div class="leyenda-item">
+          <span class="color-box baja"></span>
+          <span>Baja</span>
+        </div>
+      </div>
+
+      <button (click)="descargarGraficaPDF()" class="btn-descargar">
+        <span class="material-icons">picture_as_pdf</span> Descargar PDF
+      </button>
+    </div>
+  </div>
+</div>

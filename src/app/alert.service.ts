@@ -1,25 +1,24 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface Alerta {
+  timestamp: string;
+  alert: string;
+  ip_src: string;
+  ip_dst: string;
+  description: string;
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class AlertService {
-  constructor() {}
+  private apiUrl = 'http://127.0.0.1:8000/api/alerts'; // Tu API
 
-  // Método para generar alertas simuladas
-  getAlerts(): Observable<{ timestamp: string; level: string; src: string; dest: string; details: string }[]> {
-    const alerts = Array.from({ length: 100 }, (_, index) => {
-      const levels = ['bajo', 'medio', 'alto'];
-      const level = levels[Math.floor(Math.random() * levels.length)];
-      const timestamp = new Date(Date.now() - Math.random() * 10000000000).toISOString();
-      const details = `Alerta #${index + 1} de nivel ${level}`;
-      const src = `Fuente-${Math.ceil(Math.random() * 10)}`;
-      const dest = `Destino-${Math.ceil(Math.random() * 10)}`;
+  constructor(private http: HttpClient) {}
 
-      return { timestamp, level, src, dest, details };
-    });
-
-    return of(alerts); // Retornar las alertas como un observable
+  getAlerts(): Observable<Alerta[]> {
+    return this.http.get<Alerta[]>(this.apiUrl);
   }
 }

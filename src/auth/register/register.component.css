@@ -59,3 +59,18 @@ h2 {
   font-size: 0.9em;
   text-align: center;
 }
+
+.password-error {
+  color: red;
+  font-weight: bold;
+  font-size: 0.9em;
+  margin-bottom: 5px;
+}
+
+.success-message {
+  color: green;
+  font-size: 1em;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 10px;
+}

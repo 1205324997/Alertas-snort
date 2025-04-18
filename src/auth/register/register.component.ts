@@ -1,65 +1,65 @@
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../../components/firebase';
 import { CommonModule } from '@angular/common';
+import { AuthService } from '../../service/auth.service';
 
 @Component({
   selector: 'app-register',
   standalone: true,
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css'],
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [ReactiveFormsModule, CommonModule]
 })
 export class RegisterComponent {
   registerForm: FormGroup;
-  errorMessage: string = '';
+  passwordMismatch = false;
+  errorMessage = '';
+  successMessage = '';
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private router: Router,
+    private authService: AuthService
+  ) {
     this.registerForm = this.fb.group({
       name: ['', Validators.required],
-      username: ['', Validators.required],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['', Validators.required],
+      confirmPassword: ['', Validators.required]
     });
+
+    this.registerForm.valueChanges.subscribe(() => this.checkPasswords());
+  }
+
+  checkPasswords(): void {
+    const password = this.registerForm.get('password')?.value;
+    const confirmPassword = this.registerForm.get('confirmPassword')?.value;
+    this.passwordMismatch = password && confirmPassword && password !== confirmPassword;
   }
 
   onSubmit(): void {
-    // Marcar todos los campos como tocados para activar la validación
-    this.registerForm.markAllAsTouched();
+    this.errorMessage = '';
+    this.successMessage = '';
 
-    if (this.registerForm.valid) {
-      const { email, password, confirmPassword, name, username } = this.registerForm.value;
+    if (this.passwordMismatch) return;
 
-      if (password !== confirmPassword) {
-        this.errorMessage = 'Las contraseñas no coinciden';
-        return;
+    const { name, email, password } = this.registerForm.value;
+
+    this.authService.registerPerson(name, '', email, password).subscribe({
+      next: () => {
+        this.successMessage = '¡Registro exitoso!';
+        this.registerForm.reset();
+        setTimeout(() => {
+          this.successMessage = '';
+          this.router.navigate(['/login']);
+        }, 2000);
+      },
+      error: (err) => {
+        console.error(err);
+        this.errorMessage = 'Error al registrar. Intenta más tarde.';
       }
-
-      // Lógica para registrar al usuario en Firebase
-      createUserWithEmailAndPassword(auth, email, password)
-        .then((userCredential) => {
-          const user = userCredential.user;
-          console.log('Usuario registrado exitosamente:', user);
-          this.router.navigate(['/login']); // Redirigir a la página de inicio de sesión
-        })
-        .catch((error) => {
-          console.error('Error al registrar usuario:', error);
-          if (error.code === 'auth/email-already-in-use') {
-            this.errorMessage = 'El correo ya está en uso';
-          } else if (error.code === 'auth/invalid-email') {
-            this.errorMessage = 'Correo inválido';
-          } else if (error.code === 'auth/weak-password') {
-            this.errorMessage = 'Contraseña débil';
-          } else {
-            this.errorMessage = 'Error en el registro';
-          }
-        });
-    } else {
-      this.errorMessage = 'Formulario inválido';
-    }
+    });
   }
 
   navigateToLogin(): void {

@@ -4,8 +4,9 @@ import { HomeComponent } from '../home/home.component';
 import { RegisterComponent } from '../auth/register/register.component';
 import { MensajeComponent } from '../menu/mensaje/mensaje.component';
 import { ConfComponent } from '../menu/conf/conf.component';
-import { ProductsComponent } from '../products/products.component';
+import { EstadisticasComponent } from '../estadisticas/estadisticas.component';
 import { StartComponent } from '../start/start.component';
+import { AboutComponent } from './about/about.component';
 
 
 // Define las rutas
@@ -16,7 +17,8 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'mensaje', component: MensajeComponent },
   { path: 'config', component: ConfComponent },
-  { path: 'products', component: ProductsComponent },
+  { path: 'products', component: EstadisticasComponent },
+  { path: 'about', component: AboutComponent },
   { path: '', redirectTo: '/start', pathMatch: 'full' },
   { path: '**', redirectTo: '/start' },
   

@@ -1,82 +1,39 @@
 <div class="register-form">
   <h2>Regístrate</h2>
+
+  <!-- Mensaje de éxito -->
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+  </div>
+
+  <!-- Formulario -->
   <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
     <div>
       <label for="name">Nombre completo</label>
-      <input
-        id="name"
-        type="text"
-        formControlName="name"
-        [ngClass]="{ 'invalid': registerForm.get('name')?.invalid && (registerForm.get('name')?.touched || registerForm.get('name')?.dirty) }"
-        required
-      />
-      <div *ngIf="registerForm.get('name')?.invalid && (registerForm.get('name')?.touched || registerForm.get('name')?.dirty)" class="error-message">
-        El nombre es obligatorio
-      </div>
-    </div>
-
-    <div>
-      <label for="username">Nombre de usuario</label>
-      <input
-        id="username"
-        type="text"
-        formControlName="username"
-        [ngClass]="{ 'invalid': registerForm.get('username')?.invalid && (registerForm.get('username')?.touched || registerForm.get('username')?.dirty) }"
-        required
-      />
-      <div *ngIf="registerForm.get('username')?.invalid && (registerForm.get('username')?.touched || registerForm.get('username')?.dirty)" class="error-message">
-        El nombre de usuario es obligatorio
-      </div>
+      <input id="name" type="text" formControlName="name" required />
     </div>
 
     <div>
       <label for="email">Correo electrónico</label>
-      <input
-        id="email"
-        type="email"
-        formControlName="email"
-        [ngClass]="{ 'invalid': registerForm.get('email')?.invalid && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty) }"
-        required
-      />
-      <div *ngIf="registerForm.get('email')?.invalid && (registerForm.get('email')?.touched || registerForm.get('email')?.dirty)" class="error-message">
-        El correo es obligatorio y debe ser válido
-      </div>
+      <input id="email" type="email" formControlName="email" required />
     </div>
 
     <div>
       <label for="password">Contraseña</label>
-      <input
-        id="password"
-        type="password"
-        formControlName="password"
-        [ngClass]="{ 'invalid': registerForm.get('password')?.invalid && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty) }"
-        required
-      />
-      <div *ngIf="registerForm.get('password')?.invalid && (registerForm.get('password')?.touched || registerForm.get('password')?.dirty)" class="error-message">
-        La contraseña es obligatoria y debe tener al menos 6 caracteres
-      </div>
+      <input id="password" type="password" formControlName="password" required />
     </div>
 
     <div>
       <label for="confirmPassword">Confirmar contraseña</label>
-      <input
-        id="confirmPassword"
-        type="password"
-        formControlName="confirmPassword"
-        [ngClass]="{ 'invalid': registerForm.get('confirmPassword')?.invalid && (registerForm.get('confirmPassword')?.touched || registerForm.get('confirmPassword')?.dirty) }"
-        required
-      />
-      <div *ngIf="registerForm.get('confirmPassword')?.invalid && (registerForm.get('confirmPassword')?.touched || registerForm.get('confirmPassword')?.dirty)" class="error-message">
-        Debes confirmar tu contraseña
-      </div>
+      <div *ngIf="passwordMismatch" class="password-error">Las contraseñas no coinciden</div>
+      <input id="confirmPassword" type="password" formControlName="confirmPassword"
+             [ngClass]="{ 'invalid': passwordMismatch }" required />
     </div>
 
-    <!-- Mostrar mensaje general si el formulario es inválido -->
-    <div *ngIf="registerForm.invalid && registerForm.touched" class="error-message">
-      Todos los campos son requeridos
-    </div>
+    <div *ngIf="errorMessage" class="error-message">{{ errorMessage }}</div>
 
-    <button type="submit" [disabled]="registerForm.invalid">Registrarse</button>
+    <button type="submit" [disabled]="registerForm.invalid || passwordMismatch">Registrarse</button>
   </form>
-  <button (click)="navigateToLogin()" class="login-btn">Inicio</button>
+
+  <button (click)="navigateToLogin()">Ir a inicio</button>
 </div>

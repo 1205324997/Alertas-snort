@@ -1,54 +1,44 @@
+
 <div class="container">
-  <!-- Sidebar (Menú Lateral) -->
-  <div class="sidebar">
+  <!-- Sidebar (barra lateral) -->
+  <div class="sidebar" [ngClass]="{ 'closed': !isSidebarOpen }">
+    <!-- Topbar (Barra superior) -->
+    <mat-toolbar color="primary">
+      <button mat-icon-button (click)="toggleSidebar()">
+        <mat-icon>menu</mat-icon>
+      </button>     
+      
+      <!-- Espaciador para alinear el botón a la derecha -->
+      <span class="spacer"></span>
+      
+      <!-- Botón "Volver a Inicio" alineado a la derecha -->
+      <button mat-button (click)="logout()" class="volver-boton">
+        Cerrar Sesión
+      </button>
+    </mat-toolbar>
+     
     <ul class="menu">
-      <li><button (click)="mostrarInicio()">Inicio</button></li>
       <li><button (click)="toggleSection('alertas')">Alertas</button></li>
       <li><button (click)="toggleSection('estadisticas')">Estadísticas</button></li>
-      <li><button (click)="toggleSection('config')">Configuraciones</button></li>
+      <!--<li><button (click)="toggleSection('config')">Configuraciones</button></li>-->
     </ul>
   </div>
 
-  <!-- Contenido principal -->
-  <div class="content">
-    <div class="welcome-message">
-      <div class="logo-background" *ngIf="showMensaje">
-        <h2 *ngIf="showMensaje">Bienvenido a PYMES Shield</h2>
-        <p *ngIf="showMensaje">Verifica las últimas notificaciones de tu cuenta.</p>
-      </div>
+  <!-- Mensaje de bienvenida -->
+  <div class="welcome-message" *ngIf="showMensaje">
+    <div class="logo-background">
+      <h2>Bienvenido a PYMES Shield</h2>
+      <p>Verifica las últimas notificaciones de alertas de tu red.</p>
     </div>
-
-   <!-- Sección de Estadísticas -->
-   <div *ngIf="showEstadisticas" class="estadisticas-flex-container">
-    <!-- Tabla a la izquierda -->
-    <div class="estadisticas-container">
-      <h2>Estadísticas</h2>
-      <table class="alert-table">
-        <thead>
-          <tr>
-            <th>Fecha</th>
-            <th>Tipo de estadística</th>
-            <th>Valor</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let estadistica of estadisticasSimuladas">
-            <td>{{ estadistica.fecha }}</td>
-            <td>{{ estadistica.tipo }}</td>
-            <td>{{ estadistica.valor }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  
-    <!-- Imagen a la derecha -->
-    <div class="torta-background"></div>
   </div>
-  
 
-    <!-- Tabla de alertas -->
+  <app-estadisticas *ngIf="showEstadisticas" [alertas]="todasLasAlertas"></app-estadisticas>
+
+  <div class="content">
+    <!-- Título siempre visible cuando se muestra alertas -->
+    <h3 class="titulo-global" *ngIf="showAlertas">Lista de Alertas</h3>
+
     <div *ngIf="showAlertas" class="alertas">
-      <!-- Filtro de Prioridad -->
       <div class="filter">
         <label for="prioridad">Filtrar por prioridad:</label>
         <select id="prioridad" (change)="cambiarFiltro($event)">
@@ -58,54 +48,65 @@
           <option value="Baja">Baja</option>
         </select>
       </div>
+      
+      <!--Boton PDF-->
+      <button (click)="generarPDF()" style="float: right;" mat-icon-button color="primary" aria-label="Generar PDF">
+        <span class="material-icons">picture_as_pdf</span>Descargar PDF
+      </button>
 
-      <h2>Lista de Alertas</h2>
-      <table class="alert-table" *ngIf="alertasFiltradas.length > 0">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Tipo de Alerta</th>
-            <th>IP Origen</th>
-            <th>IP Destino</th>
-            <th>Mensaje</th>
-            <th>Prioridad</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let alerta of alertasFiltradas">
-            <td>{{ alerta.timestamp }}</td>
-            <td>{{ alerta.tipo }}</td>
-            <td>{{ alerta.src }}</td>
-            <td>{{ alerta.dest }}</td>
-            <td>{{ alerta.details }}</td>
-            <td>
-              <span class="priority" 
-                [ngClass]="{
-                  'alta': alerta.prioridad === 'Alta', 
-                  'media': alerta.prioridad === 'Media', 
+      <!-- Contenedor de la tabla con scroll -->
+      <div class="table-scroll">
+      <div class="table-container">
+        <table class="alert-table" *ngIf="alertasFiltradas.length > 0">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>IP Origen</th>
+              <th>IP Destino</th>
+              <th>Mensaje</th>
+              <th>Prioridad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let alerta of alertasFiltradas; let i = index">
+              <td data-label="Timestamp">{{ alerta.timestamp }}</td>
+              <td data-label="IP Origen">{{ alerta.src }}</td>
+              <td data-label="IP Destino">{{ alerta.dest }}</td>
+              <td data-label="Mensaje" 
+                  (click)="toggleMensaje(i)" 
+                  [style.maxHeight]="mensajeExpandido === i ? '500px' : '30px'"
+                  [style.overflow]="mensajeExpandido === i ? 'auto' : 'hidden'"
+                  [style.whiteSpace]="mensajeExpandido === i ? 'normal' : 'nowrap'">
+                {{ alerta.details }}
+              </td>
+              <td data-label="Prioridad">
+                <span class="priority" [ngClass]="{
+                  'alta': alerta.prioridad === 'Alta',
+                  'media': alerta.prioridad === 'Media',
                   'baja': alerta.prioridad === 'Baja'
                 }">
-                ● {{ alerta.prioridad }}
-              </span>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+                  ● {{ alerta.prioridad }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      <!-- Si no hay alertas filtradas, muestra un mensaje -->
-      <p *ngIf="alertasFiltradas.length === 0">No hay alertas disponibles para esta prioridad.</p>
+      <!-- Mensaje cuando no hay alertas -->
+      <div *ngIf="alertasFiltradas.length === 0" class="empty-alert-message" style="text-align: center;">
+        No hay alertas disponibles para esta prioridad.
+      </div>
 
-      <mat-paginator [length]="alertasSimuladas.length"
+      <!-- Paginación -->
+      <mat-paginator *ngIf="alertasFiltradas.length > 0"
+        [length]="todasLasAlertas.length"
         [pageSize]="alertasPorPagina"
-        [pageSizeOptions]="[5, 10, 25, 100]"
-        (page)="mostrarMasAlertas($event)"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        (page)="paginaCambiada($event)"
         aria-label="Select page">
       </mat-paginator>
     </div>
   </div>
-
-  
-
-  <!-- Botón de cerrar sesión -->
-  <button class="logout-btn" (click)="logout()">Cerrar sesión</button>
 </div>

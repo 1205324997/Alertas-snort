@@ -6,9 +6,12 @@ import { RegisterComponent } from '../auth/register/register.component';
 import { LoginComponent } from '../auth/login/login.component';
 import { HomeComponent } from '../home/home.component';
 import { StartComponent } from '../start/start.component';
-import { AlertService } from './alert.service';
+import { AlertService } from './alert.service'; 
 import { NgChartsModule } from 'ng2-charts';
 import { HttpClientModule } from '@angular/common/http';
+import { EstadisticasComponent } from '../estadisticas/estadisticas.component';
+import { Alerta } from './alert.service'; 
+import { AboutComponent } from './about/about.component';
 
 
 @Component({
@@ -25,7 +28,9 @@ import { HttpClientModule } from '@angular/common/http';
     HomeComponent,
     NgChartsModule,
     HttpClientModule,
-    RouterModule
+    RouterModule,
+    EstadisticasComponent,
+    AboutComponent,
   ],
 })
 export class AppComponent implements OnInit {
@@ -33,7 +38,8 @@ export class AppComponent implements OnInit {
   alerts: { timestamp: string; src: string; dest: string; details: string }[] = [];
   isLoginPage: boolean = false;
   isRegisterPage: boolean = false;
-  isstartPage: boolean = false;  // Agregar esta propiedad
+  isstartPage: boolean = false; 
+  isAboutPage: boolean = false;  
 
   constructor(private router: Router, private alertService: AlertService) {
     this.router.events.subscribe(() => {
@@ -41,28 +47,43 @@ export class AppComponent implements OnInit {
         this.isLoginPage = true;
         this.isRegisterPage = false;
         this.isstartPage = false;
+        this.isAboutPage = false;  // Resetea la página About
       } else if (this.router.url === '/register') {
         this.isRegisterPage = true;
         this.isLoginPage = false;
         this.isstartPage = false;
+        this.isAboutPage = false;
       } else if (this.router.url === '/start') {
-        this.isstartPage = true;  // Establecer como true cuando la ruta sea '/start'
+        this.isstartPage = true;
         this.isLoginPage = false;
         this.isRegisterPage = false;
+        this.isAboutPage = false;
+      } else if (this.router.url === '/about') {
+        this.isAboutPage = true;  // Establece isAboutPage en true
+        this.isLoginPage = false;
+        this.isRegisterPage = false;
+        this.isstartPage = false;
       } else {
         this.isLoginPage = false;
         this.isRegisterPage = false;
         this.isstartPage = false;
+        this.isAboutPage = false;
       }
     });
   }
 
+
   ngOnInit(): void {
-    // Obtiene alertas simuladas al inicializar
-    this.alertService.getAlerts().subscribe((alerts) => {
-      this.alerts = alerts;
+    this.alertService.getAlerts().subscribe((alerts: Alerta[]) => {
+      this.alerts = alerts.map(alert => ({
+        timestamp: alert.timestamp,
+        src: alert.ip_src,
+        dest: alert.ip_dst,
+        details: alert.description,
+      }));
     });
   }
+  
 
   title = 'alert';
 }

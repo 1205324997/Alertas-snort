@@ -1,32 +1,29 @@
 import { Injectable } from '@angular/core';
-import { auth } from '../components/firebase';
-import { signInWithEmailAndPassword } from 'firebase/auth'; // Método para iniciar sesión
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
+  private apiUrl = 'http://127.0.0.1:8000/api/persons';
 
-  constructor() {}
+  constructor(private http: HttpClient) {}
 
-  // Método para iniciar sesión con correo y contraseña
-  signInWithEmail(email: string, password: string): Promise<any> {
-    return signInWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        console.log('Usuario autenticado con correo:', user);
-
-        // Guardar el UID del usuario en localStorage
-        localStorage.setItem('uid', user.uid);
-        
-        // Devolver el usuario para que el componente pueda manejarlo si es necesario
-        return user;
-      })
-      .catch((error) => {
-        console.error('Error de autenticación:', error);
-        throw error;
-      });
+  registerPerson(name: string, username: string, email: string, password: string): Observable<any> {
+    const personData = { name, username, email, password };
+    return this.http.post(this.apiUrl, personData);
   }
 
-  // Puedes agregar otros métodos de autenticación (Google, Facebook, etc.) aquí.
+  login(email: string, password: string): Observable<any> {
+    return this.http.get<any[]>(this.apiUrl).pipe(
+      map(users => {
+        const user = users.find(u => u.email === email && u.password === password);
+        if (user) return user;
+        else throw new Error('Credenciales inválidas');
+      })
+    );
+  }  
 }
