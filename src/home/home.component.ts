@@ -197,7 +197,9 @@ export class HomeComponent implements OnInit, AfterViewInit {
       'FTP login attempt': 'Intento de inicio de sesión FTP',
       'ICMP ping': 'Ping ICMP',
       'Malformed packet': 'Paquete mal formado',
-    };
+    'NO CONTENT-LENGTH OR TRANSFER-ENCODING IN HTTP RESPONSE': 'No se encontró CONTENT-LENGTH o TRANSFER-ENCODING en la respuesta HTTP',
+  };
+
 
     for (const clave in traducciones) {
       if (mensaje.includes(clave)) {
