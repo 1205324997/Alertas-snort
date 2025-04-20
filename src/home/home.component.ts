@@ -168,7 +168,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       theme: 'grid',
     });
 
-    doc.save('reporte_alertas_semanal.pdf');
+    doc.save('reporte_alertas_diario.pdf');
   }
 
   cambiarFiltro(event: Event): void {
