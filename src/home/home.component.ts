@@ -145,7 +145,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   generarPDF(): void {
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.text('Reporte Semanal de Alertas', 14, 20);
+    doc.text('Reporte Diario de Alertas', 14, 20);
 
     const headers = ['Timestamp', 'IP Origen', 'IP Destino', 'Mensaje', 'Prioridad'];
 
