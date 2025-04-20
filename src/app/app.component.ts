@@ -47,7 +47,7 @@ export class AppComponent implements OnInit {
         this.isLoginPage = true;
         this.isRegisterPage = false;
         this.isstartPage = false;
-        this.isAboutPage = false;  // Resetea la página About
+        this.isAboutPage = false;  
       } else if (this.router.url === '/register') {
         this.isRegisterPage = true;
         this.isLoginPage = false;
@@ -59,7 +59,7 @@ export class AppComponent implements OnInit {
         this.isRegisterPage = false;
         this.isAboutPage = false;
       } else if (this.router.url === '/about') {
-        this.isAboutPage = true;  // Establece isAboutPage en true
+        this.isAboutPage = true;  
         this.isLoginPage = false;
         this.isRegisterPage = false;
         this.isstartPage = false;

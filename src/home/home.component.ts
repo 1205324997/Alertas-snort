@@ -1,19 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { AlertService } from '../app/alert.service';
+import { AlertService, Alerta } from '../app/alert.service';
 import { EstadisticasComponent } from '../estadisticas/estadisticas.component';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
-import { Alerta } from '../app/alert.service'; 
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSidenav } from '@angular/material/sidenav';
 import { MatToolbarModule } from '@angular/material/toolbar';
-
 
 @Component({
   selector: 'app-home',
@@ -33,18 +31,18 @@ export class HomeComponent implements OnInit, AfterViewInit {
   alertas: any[] = [];
   displayedColumns: string[] = ['timestamp', 'src', 'dest', 'details', 'prioridad'];
   dataSource: MatTableDataSource<any> = new MatTableDataSource();
-  showAlertas: boolean = false;
-  showEstadisticas: boolean = false;
+  showAlertas = false;
+  showEstadisticas = false;
   todasLasAlertas: any[] = [];
-  fechaInicio: string = '';
-  fechaFin: string = '';
+  fechaInicio = '';
+  fechaFin = '';
   mensajeExpandido: number | null = null;
-  showMensaje: boolean = true; 
-  isSidebarOpen: boolean = true;  
+  showMensaje = true;
+  isSidebarOpen = true;
 
-  prioridadFiltro: string = '';
-  alertasPorPagina: number = 10;
-  paginaActual: number = 0;
+  prioridadFiltro = '';
+  alertasPorPagina = 10;
+  paginaActual = 0;
 
   @ViewChild(MatPaginator) paginator: MatPaginator | undefined;
   @ViewChild('sidenav') sidenav!: MatSidenav;
@@ -67,11 +65,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.showEstadisticas = false;
   }
 
-
   toggleSidebar() {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
-  
+
   cargarAlertas(): void {
     this.alertService.getAlerts().subscribe((data: Alerta[]) => {
       const todas = data
@@ -80,16 +77,15 @@ export class HomeComponent implements OnInit, AfterViewInit {
           tipo: alert.alert,
           src: alert.ip_src,
           dest: alert.ip_dst,
-          details: alert.description,
+          details: this.traducirMensaje(alert.description),
           prioridad: this.asignarPrioridad(alert, i),
         }))
-        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()); // Ordena por fecha descendente
-  
+        .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
       this.todasLasAlertas = todas;
       this.dataSource.data = this.obtenerAlertasFiltradasYPaginadas();
     });
   }
-  
 
   private obtenerAlertasFiltradasYPaginadas(): any[] {
     let filtradas = this.todasLasAlertas;
@@ -117,39 +113,30 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
 
   toggleMensaje(index: number): void {
-    if (this.mensajeExpandido === index) {
-      this.mensajeExpandido = null; // Si ya está expandido, lo contraemos
-    } else {
-      this.mensajeExpandido = index; // Expande el mensaje
-    }
+    this.mensajeExpandido = this.mensajeExpandido === index ? null : index;
   }
-  
 
   logout(): void {
     console.log('Cerrando sesión...');
     this.router.navigate(['/login']);
   }
 
+  paginaCambiada(event: any): void {
+    const scrollY = window.scrollY;
 
- paginaCambiada(event: any): void {
-  const scrollY = window.scrollY;
+    if (this.alertasPorPagina !== event.pageSize) {
+      this.paginaActual = 0;
+    } else {
+      this.paginaActual = event.pageIndex;
+    }
 
-  if (this.alertasPorPagina !== event.pageSize) {
-    this.paginaActual = 0;
-  } else {
-    this.paginaActual = event.pageIndex;
+    this.alertasPorPagina = event.pageSize;
+    this.dataSource.data = this.obtenerAlertasFiltradasYPaginadas();
+
+    setTimeout(() => {
+      window.scrollTo({ top: scrollY });
+    }, 50);
   }
-
-  this.alertasPorPagina = event.pageSize;
-  this.dataSource.data = this.obtenerAlertasFiltradasYPaginadas();
-
-  // Espera a que Angular actualice la vista antes de restaurar scroll
-  setTimeout(() => {
-    window.scrollTo({ top: scrollY });
-  }, 50); // 50ms suele ser suficiente, puedes probar con más si aún se mueve
-}
-
-  
 
   get alertasFiltradas() {
     return this.dataSource.data;
@@ -187,17 +174,37 @@ export class HomeComponent implements OnInit, AfterViewInit {
   cambiarFiltro(event: Event): void {
     const selectElement = event.target as HTMLSelectElement;
     this.prioridadFiltro = selectElement.value;
-    this.paginaActual = 0; 
+    this.paginaActual = 0;
     this.dataSource.data = this.obtenerAlertasFiltradasYPaginadas();
   }
 
   private asignarPrioridad(alerta: any, index: number): string {
-    if (alerta.alert.toLowerCase().includes('ftp') || alerta.alert.toLowerCase().includes('sql')) {
+    const mensaje = alerta.alert.toLowerCase();
+    if (mensaje.includes('ftp') || mensaje.includes('sql')) {
       return 'Alta';
     } else if (index % 3 === 0) {
       return 'Baja';
     } else {
       return 'Media';
     }
+  }
+
+  // Traducción simple (puedes ampliar este diccionario según sea necesario)
+  private traducirMensaje(mensaje: string): string {
+    const traducciones: { [clave: string]: string } = {
+      'TCP session without 3-way handshake': 'Sesión TCP sin el protocolo de tres pasos',
+      'SQL Injection attempt': 'Intento de inyección SQL',
+      'FTP login attempt': 'Intento de inicio de sesión FTP',
+      'ICMP ping': 'Ping ICMP',
+      'Malformed packet': 'Paquete mal formado',
+    };
+
+    for (const clave in traducciones) {
+      if (mensaje.includes(clave)) {
+        return mensaje.replace(clave, traducciones[clave]);
+      }
+    }
+
+    return mensaje; // Retorna el mensaje original si no hay traducción
   }
 }
